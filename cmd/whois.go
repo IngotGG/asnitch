@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"encoding/json"
 	"fmt"
 	"strings"
 
@@ -33,53 +34,71 @@ var whoisCmd = &cobra.Command{
 			return
 		}
 		if jsonOutput {
-			fmt.Println("JSON output not yet implemented")
-			return
-		}
+			if ip == "" {
+				fmt.Println("No IPs provided")
+			} else {
+				for _, ip := range ips {
+					response, err := whois.Whois(strings.TrimSpace(ip))
+					if err != nil {
+						fmt.Printf("Error querying %s: %v\n", ip, err)
+						continue
+					}
 
-		fmt.Print("ASN Information:\n")
-		if asn != "" {
-			var firstResponse bool = true
-
-			for _, asn := range asns {
-				response, err := whois.Whois(strings.TrimSpace(asn))
-				if err != nil {
-					fmt.Printf("Error querying %s: %v\n", asn, err)
-					continue
-				}
-
-				lines := strings.Split(response, "\n")
-
-				if firstResponse {
-					fmt.Print(response)
-					firstResponse = false
-				} else {
-					// Skip the first line, assuming it's the header
-					fmt.Print(strings.Join(lines[1:], "\n"))
+					jsonResult, err := json.MarshalIndent(whois.ParseWhoisResult(response), "", "  ")
+					if err != nil {
+						fmt.Printf("Error marshalling JSON: %v\n", err)
+						continue
+					}
+					if string(jsonResult) != "null" {
+						fmt.Println(string(jsonResult))
+					}
 				}
 			}
-		}
+		} else {
+			fmt.Print("ASN Information:\n")
+			if asn != "" {
+				var firstResponse bool = true
 
-		fmt.Print("\n\nIP Information:\n")
-		if ip != "" {
-			var firstResponse bool = true
+				for _, asn := range asns {
+					response, err := whois.Whois(strings.TrimSpace(asn))
+					if err != nil {
+						fmt.Printf("Error querying %s: %v\n", asn, err)
+						continue
+					}
 
-			for _, ip := range ips {
-				response, err := whois.Whois(strings.TrimSpace(ip))
-				if err != nil {
-					fmt.Printf("Error querying %s: %v\n", ip, err)
-					continue
+					lines := strings.Split(response, "\n")
+
+					if firstResponse {
+						fmt.Print(response)
+						firstResponse = false
+					} else {
+						// Skip the first line, assuming it's the header
+						fmt.Print(strings.Join(lines[1:], "\n"))
+					}
 				}
+			}
 
-				lines := strings.Split(response, "\n")
+			fmt.Print("\n\nIP Information:\n")
+			if ip != "" {
+				var firstResponse bool = true
 
-				if firstResponse {
-					fmt.Println()
-					fmt.Print(response)
-					firstResponse = false
-				} else {
-					// Skip the first line, assuming it's the header
-					fmt.Print(strings.Join(lines[1:], "\n"))
+				for _, ip := range ips {
+					response, err := whois.Whois(strings.TrimSpace(ip))
+					if err != nil {
+						fmt.Printf("Error querying %s: %v\n", ip, err)
+						continue
+					}
+
+					lines := strings.Split(response, "\n")
+
+					if firstResponse {
+						fmt.Println()
+						fmt.Print(response)
+						firstResponse = false
+					} else {
+						// Skip the first line, assuming it's the header
+						fmt.Print(strings.Join(lines[1:], "\n"))
+					}
 				}
 			}
 		}

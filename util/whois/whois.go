@@ -1,7 +1,6 @@
 package whois
 
 import (
-	"encoding/json"
 	"fmt"
 	"regexp"
 	"strconv"
@@ -32,14 +31,6 @@ func Whois(what string) (string, error) {
 	}
 
 	result = removeAppendedInformation(result)
-
-	jsonResult, err := json.MarshalIndent(parseWhoisResult(result), "", "  ")
-	if err != nil {
-		return "", err
-	}
-	if string(jsonResult) != "null" {
-		fmt.Println(string(jsonResult))
-	}
 
 	return result, nil
 }

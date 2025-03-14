@@ -6,7 +6,7 @@ import (
 
 type WhoisData map[string]interface{}
 
-func parseWhoisResult(result string) WhoisData {
+func ParseWhoisResult(result string) WhoisData {
 	whoisData := make(WhoisData)
 
 	lines := strings.Split(result, "\n")
