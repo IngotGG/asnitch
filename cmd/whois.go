@@ -27,6 +27,16 @@ var whoisCmd = &cobra.Command{
 			cmd.Usage()
 		}
 
+		jsonOutput, err := cmd.Flags().GetBool("json")
+		if err != nil {
+			fmt.Printf("Error getting json flag: %v\n", err)
+			return
+		}
+		if jsonOutput {
+			fmt.Println("JSON output not yet implemented")
+			return
+		}
+
 		fmt.Print("ASN Information:\n")
 		if asn != "" {
 			var firstResponse bool = true

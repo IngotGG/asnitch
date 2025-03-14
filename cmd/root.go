@@ -37,6 +37,7 @@ func init() {
 	// Cobra supports persistent flags, which, if defined here,
 	// will be global for your application.
 
+	whoisCmd.PersistentFlags().BoolP("json", "j", false, "Return the results in JSON format")
 	// rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.asnitch.yaml)")
 
 	// Cobra also supports local flags, which will only run

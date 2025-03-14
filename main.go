@@ -1,11 +1,22 @@
-/*
-Copyright © 2025 NAME HERE <EMAIL ADDRESS>
-
-*/
 package main
 
-import "ssmidge.xyz/asnitch/cmd"
+import (
+	"os"
+	"os/signal"
+	"syscall"
+
+	"ssmidge.xyz/asnitch/cmd"
+)
 
 func main() {
-	cmd.Execute()
+	// Set up channel to listen for termination signals (Ctrl+C, SIGTERM)
+	signalChannel := make(chan os.Signal, 1)
+	signal.Notify(signalChannel, syscall.SIGINT, syscall.SIGTERM)
+
+	go func() {
+		cmd.Execute()
+	}()
+
+	<-signalChannel
+	os.Exit(0)
 }
