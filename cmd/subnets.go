@@ -145,6 +145,40 @@ var subnetsCmd = &cobra.Command{
 						return
 					}
 				}
+			} else {
+				httpReq, err := http.NewRequest("GET", "https://bgp.tools/table.jsonl", nil)
+					if err != nil {
+						fmt.Println("Error creating request:", err)
+						return
+					}
+
+					httpReq.Header.Set("Accept", "application/json")
+					httpReq.Header.Set("Content-Type", "application/json")
+					httpReq.Header.Set("User-Agent", "ASNitch CLI - adriant@ingot.gg")
+
+					httpClient := &http.Client{}
+					resp, err := httpClient.Do(httpReq)
+					if err != nil {
+						fmt.Println("Error sending request:", err)
+						return
+					}
+					defer resp.Body.Close()
+
+					// Check if the response status is OK
+					if resp.StatusCode != http.StatusOK {
+						fmt.Println("Error: Received non-OK HTTP status:", resp.StatusCode)
+						return
+					}
+
+					body, err = io.ReadAll(resp.Body)
+					if err != nil {
+						fmt.Println("Error reading response body:", err)
+						return
+					}
+
+					// cache the body for 30 minutes so that i dont get ratelimited AGAIN
+					// i'm not sure if this is the best idea but whatever :dies:
+					os.WriteFile("table.jsonl", body, 0600)
 			}
 
 			subnetMap := make(map[string][]string)
